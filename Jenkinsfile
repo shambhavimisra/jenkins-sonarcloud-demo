@@ -6,20 +6,27 @@ pipeline {
     }
 
     tools {
-        sonarQubeScanner 'SonarScanner'
+        sonarQubeScanner 'SonarScanner' // This must match the name configured in Jenkins → Global Tool Configuration
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 git url: 'https://github.com/shambhavimisra/jenkins-sonarcloud-demo.git', branch: 'main'
             }
         }
 
-        stage('SonarCloud Scan') {
+        stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') {
-                    sh 'sonar-scanner -Dsonar.login=$SONAR_TOKEN'
+                withSonarQubeEnv('SonarCloud') { // This must match your name in "Configure System" for SonarQube server
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=shambhavimisra_jenkins-sonarcloud-demo \
+                          -Dsonar.organization=shambhavimisra \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
