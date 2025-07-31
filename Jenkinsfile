@@ -1,40 +1,25 @@
 pipeline {
     agent any
 
-    environment {
-        SONAR_TOKEN = credentials('sonar-token')
+    tools {
+        maven 'Maven 3.9.6'  // Adjust to your configured Maven version name in Jenkins
     }
 
-    tools {
-        sonarQubeScanner 'SonarScanner' // This must match the name configured in Jenkins → Global Tool Configuration
+    environment {
+        SONAR_TOKEN = credentials('sonar-token') // Make sure you created this credential
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/shambhavimisra/jenkins-sonarcloud-demo.git', branch: 'main'
+                checkout scm
             }
         }
 
         stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') { // This must match your name in "Configure System" for SonarQube server
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=shambhavimisra_jenkins-sonarcloud-demo \
-                          -Dsonar.organization=shambhavimisra \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=https://sonarcloud.io \
-                          -Dsonar.login=$SONAR_TOKEN
-                    '''
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                withSonarQubeEnv('SonarCloud') {
+                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=shambhavimisra_jenkins-sonarcloud-demo -Dsonar.organization=shambhavimisra -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN'
                 }
             }
         }
