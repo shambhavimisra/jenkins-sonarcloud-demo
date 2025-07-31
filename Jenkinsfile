@@ -24,7 +24,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // 🔁 MUST match name in "Manage Jenkins > Configure System > SonarQube Servers"
+                withSonarQubeEnv('SonarCloud') { // 🔁 MUST match name in "Manage Jenkins > Configure System > SonarQube Servers"
                     sh 'mvn sonar:sonar'
                 }
             }
